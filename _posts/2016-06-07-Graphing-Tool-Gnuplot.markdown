@@ -11,8 +11,9 @@ There are a lot of examples [demo gallery][demo-gallery] to for new comers to fo
 plot 'C:\home\Study\gnuplot_test1.dat' using 2 title 'netperf' with lines
 # plot command is used to create 2-d graph, splot is used to create 3-d.
 {% endhighlight %}
-![My helpful screenshot]({{site.url}}/assets/Gnuplot_example.JPG)
-You can [get the test data]({{site.url}}/assets/gnuplot_test1.dat)
+![Screenshot for Gnuplot output]({{site.url}}/assets/Gnuplot_example.jpg)
+
+You can get [the test data here]({{site.url}}/assets/gnuplot_test1.dat)
 
 [demo-gallery]: http://gnuplot.sourceforge.net/demo_5.0/
 [Gnuplot]:      http://www.gnuplot.info/
