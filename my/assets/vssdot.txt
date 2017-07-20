@@ -1,0 +1,51 @@
+digraph G {
+
+/* states for transition */
+   kernel        [label="kernel"];
+   subgraph daemon {
+      node [style=filled,color=blue];
+      daemon_read   [label="daemon read"];
+      daemon_write  [label="daemon write"];
+      daemon_read   -> daemon_write  [label="check/freeze/thaw"];
+      label = "daemon";
+   }
+
+   subgraph app {
+      node [style=filled,color=lightgrey;];
+      app_read      [label="app read"];
+      app_write     [label="app write"];
+      app_read      -> app_write     [label="check/freeze/thaw"];
+      label = "app";
+      color = blue;
+   }
+
+      node [style=filled;color=green];
+      check_succ    [label="VSS support"];
+      freeze_succ   [label="freeze successful"];
+      thaw_succ     [label="thaw successful"];
+      node [style=filled;color=red];
+      check_fail    [label="VSS unsupport"];
+      freeze_fail   [label="freeze failed"];
+      thaw_fail     [label="thaw failed"];
+{rank = same; daemon_read; app_read;}
+{rank = same; daemon_write; app_write;}
+{rank = same; freeze_succ; freeze_fail; thaw_succ; thaw_fail; check_succ; check_fail;}
+
+/* transition for kernel to daemon */
+/* edge [color=red]; */
+rankdir=LR;
+kernel        -> daemon_read   [label="thaw notify"];
+daemon_write  -> freeze_succ   [label="freeze ack succ"];
+daemon_write  -> freeze_fail   [label="freeze ack fail"];
+daemon_write  -> thaw_fail     [label="thaw ack fail"];
+daemon_write  -> app_read      [label="thaw ack succ"];
+daemon_write  -> check_fail    [label="check fail"];
+daemon_write  -> check_succ    [label="check succ"];
+
+kernel        -> app_read      [label="check/freeze notify"];
+app_write     -> freeze_fail   [label="freeze ack fail"];
+app_write     -> daemon_read   [label="check/freeze ack succ"];
+app_write     -> thaw_succ     [label="thaw ack succ"];
+app_write     -> thaw_fail     [label="thaw ack fail"];
+app_write     -> check_fail    [label="check fail"];
+}
