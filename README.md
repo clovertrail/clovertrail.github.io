@@ -1,4 +1,3 @@
 # clovertrail.github.io
-This is clovertrail's home
+This is clovertrail's home: https://clovertrail.github.io/my
 
-jekyll build -s jekyllsrc -d my
