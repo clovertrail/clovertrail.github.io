@@ -5,7 +5,7 @@ date:   2017-09-12 13:05:14 +0800
 categories: jekyll theme
 tail: I'm a tail
 ---
-Spinlocks on paravirtualization environment suffer from two issues: Lock Holder Preemption and Lock Waiter Preemption. Those problems have not yet been perfectly resolved. If you want to study its current status for prevelant VM, for example, KVM, you will find you cannot enable PV spinlocks for KVM, because it is disabled default.
+Spinlocks on paravirtualization environment suffer from two issues: [Lock Holder Preemption and Lock Waiter Preemption][LHP_LWP]. Those problems have not yet been perfectly resolved. If you want to study its current status for prevelant VM, for example, KVM, you will find you cannot enable PV spinlocks for KVM, because it is disabled default.
 
 You should know how to [install KVM][KVM_Install] and create a VM on bare metal Linux. Be default, the KVM host disabled CPU feature of KVM_FEATURE_PV_UNHALT. 
 {% highlight ruby linenos %}
@@ -147,4 +147,5 @@ See the following libvirt XML configuration. You just need to add "qemu:commandl
   </qemu:commandline>
 </domain>
 {% endhighlight %}
+[LHP_LWP]: http://dl.acm.org/citation.cfm?id=3064180&dl=ACM&coll=DL&CFID=984392879&CFTOKEN=64855677
 [KVM_Install]: https://help.ubuntu.com/community/KVM/Installation

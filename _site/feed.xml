@@ -4,15 +4,15 @@
     <title>Technical sharing by clovertrail</title>
     <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
 </description>
-    <link>https://clovertrail.github.io/</link>
-    <atom:link href="https://clovertrail.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 12 Sep 2017 15:24:51 +0800</pubDate>
-    <lastBuildDate>Tue, 12 Sep 2017 15:24:51 +0800</lastBuildDate>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Thu, 14 Sep 2017 10:39:40 +0800</pubDate>
+    <lastBuildDate>Thu, 14 Sep 2017 10:39:40 +0800</lastBuildDate>
     <generator>Jekyll v3.5.2</generator>
     
       <item>
         <title>KVM Paravirt Spinlocks</title>
-        <description>&lt;p&gt;Spinlocks on paravirtualization environment suffer from two issues: Lock Holder Preemption and Lock Waiter Preemption. Those problems have not yet been perfectly resolved. If you want to study its current status for prevelant VM, for example, KVM, you will find you cannot enable PV spinlocks for KVM, because it is disabled default.&lt;/p&gt;
+        <description>&lt;p&gt;Spinlocks on paravirtualization environment suffer from two issues: &lt;a href=&quot;http://dl.acm.org/citation.cfm?id=3064180&amp;amp;dl=ACM&amp;amp;coll=DL&amp;amp;CFID=984392879&amp;amp;CFTOKEN=64855677&quot;&gt;Lock Holder Preemption and Lock Waiter Preemption&lt;/a&gt;. Those problems have not yet been perfectly resolved. If you want to study its current status for prevelant VM, for example, KVM, you will find you cannot enable PV spinlocks for KVM, because it is disabled default.&lt;/p&gt;
 
 &lt;p&gt;You should know how to &lt;a href=&quot;https://help.ubuntu.com/community/KVM/Installation&quot;&gt;install KVM&lt;/a&gt; and create a VM on bare metal Linux. Be default, the KVM host disabled CPU feature of KVM_FEATURE_PV_UNHALT.&lt;/p&gt;
 
@@ -62,7 +62,7 @@
 &lt;span class=&quot;n&quot;&gt;hongjiang&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@lis&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f2334&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:~&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;virsh&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dumpxml&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inactive&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;security&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ubuntu1704&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;my_kvm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;xml&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;See the following libvirt XML configuration. You just need to add “qemu:commandline” as the last element for the domain. You can get &lt;a href=&quot;https://clovertrail.github.io/assets/ubuntun1704.xml&quot;&gt;the XML configuration here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;See the following libvirt XML configuration. You just need to add “qemu:commandline” as the last element for the domain. You can get &lt;a href=&quot;http://localhost:4000/assets/ubuntun1704.xml&quot;&gt;the XML configuration here&lt;/a&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;table style=&quot;border-spacing: 0&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot; style=&quot;text-align: right&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
 2
@@ -279,8 +279,8 @@
 
 </description>
         <pubDate>Tue, 12 Sep 2017 13:05:14 +0800</pubDate>
-        <link>https://clovertrail.github.io/jekyll/theme/2017/09/12/KVM-Paravirt-Spinlocks.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/jekyll/theme/2017/09/12/KVM-Paravirt-Spinlocks.html</guid>
+        <link>http://localhost:4000/jekyll/theme/2017/09/12/KVM-Paravirt-Spinlocks.html</link>
+        <guid isPermaLink="true">http://localhost:4000/jekyll/theme/2017/09/12/KVM-Paravirt-Spinlocks.html</guid>
         
         
         <category>jekyll</category>
@@ -356,8 +356,8 @@
 &lt;p&gt;This is an example of embedded high charts.&lt;/p&gt;
 </description>
         <pubDate>Wed, 19 Jul 2017 00:00:00 +0800</pubDate>
-        <link>https://clovertrail.github.io/js/2017/07/19/Netperf-Details.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/js/2017/07/19/Netperf-Details.html</guid>
+        <link>http://localhost:4000/js/2017/07/19/Netperf-Details.html</link>
+        <guid isPermaLink="true">http://localhost:4000/js/2017/07/19/Netperf-Details.html</guid>
         
         <category>highcharts</category>
         
@@ -433,8 +433,8 @@
 &lt;p&gt;This is an example of embedded high charts.&lt;/p&gt;
 </description>
         <pubDate>Wed, 19 Jul 2017 00:00:00 +0800</pubDate>
-        <link>https://clovertrail.github.io/js/2017/07/19/Charts-In-Jekyll.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/js/2017/07/19/Charts-In-Jekyll.html</guid>
+        <link>http://localhost:4000/js/2017/07/19/Charts-In-Jekyll.html</link>
+        <guid isPermaLink="true">http://localhost:4000/js/2017/07/19/Charts-In-Jekyll.html</guid>
         
         <category>highcharts</category>
         
@@ -610,8 +610,8 @@
 
 </description>
         <pubDate>Tue, 18 Jul 2017 16:43:14 +0800</pubDate>
-        <link>https://clovertrail.github.io/performance/2017/07/18/Performance-for-Docker-Multiple-Host-Network.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/performance/2017/07/18/Performance-for-Docker-Multiple-Host-Network.html</guid>
+        <link>http://localhost:4000/performance/2017/07/18/Performance-for-Docker-Multiple-Host-Network.html</link>
+        <guid isPermaLink="true">http://localhost:4000/performance/2017/07/18/Performance-for-Docker-Multiple-Host-Network.html</guid>
         
         
         <category>performance</category>
@@ -627,14 +627,14 @@
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;table style=&quot;border-spacing: 0&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot; style=&quot;text-align: right&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;dot&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Tpng&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vssdot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;txt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;o&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vssdot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;png&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://clovertrail.github.io/assets/vssdot.png&quot; alt=&quot;Screenshot for dot output&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/vssdot.png&quot; alt=&quot;Screenshot for dot output&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;You can get &lt;a href=&quot;https://clovertrail.github.io/assets/vssdot.txt&quot;&gt;the test data here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can get &lt;a href=&quot;http://localhost:4000/assets/vssdot.txt&quot;&gt;the test data here&lt;/a&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 31 Oct 2016 13:49:14 +0800</pubDate>
-        <link>https://clovertrail.github.io/tools/2016/10/31/Directed-Undirected-Graph-Tool-Dot.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/tools/2016/10/31/Directed-Undirected-Graph-Tool-Dot.html</guid>
+        <link>http://localhost:4000/tools/2016/10/31/Directed-Undirected-Graph-Tool-Dot.html</link>
+        <guid isPermaLink="true">http://localhost:4000/tools/2016/10/31/Directed-Undirected-Graph-Tool-Dot.html</guid>
         
         
         <category>tools</category>
@@ -670,8 +670,8 @@
 
 </description>
         <pubDate>Wed, 08 Jun 2016 22:49:14 +0800</pubDate>
-        <link>https://clovertrail.github.io/freebsd/2016/06/08/Fix-FIO-posixaio-issue-on-FreeBSD10-3.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/freebsd/2016/06/08/Fix-FIO-posixaio-issue-on-FreeBSD10-3.html</guid>
+        <link>http://localhost:4000/freebsd/2016/06/08/Fix-FIO-posixaio-issue-on-FreeBSD10-3.html</link>
+        <guid isPermaLink="true">http://localhost:4000/freebsd/2016/06/08/Fix-FIO-posixaio-issue-on-FreeBSD10-3.html</guid>
         
         
         <category>FreeBSD</category>
@@ -689,14 +689,14 @@
 &lt;span class=&quot;c1&quot;&gt;# plot command is used to create 2-d graph, splot is used to create 3-d.&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://clovertrail.github.io/assets/Gnuplot_example.jpg&quot; alt=&quot;Screenshot for Gnuplot output&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/Gnuplot_example.jpg&quot; alt=&quot;Screenshot for Gnuplot output&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;You can get &lt;a href=&quot;https://clovertrail.github.io/assets/gnuplot_test1.dat&quot;&gt;the test data here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can get &lt;a href=&quot;http://localhost:4000/assets/gnuplot_test1.dat&quot;&gt;the test data here&lt;/a&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Tue, 07 Jun 2016 13:49:14 +0800</pubDate>
-        <link>https://clovertrail.github.io/tools/2016/06/07/Graphing-Tool-Gnuplot.html</link>
-        <guid isPermaLink="true">https://clovertrail.github.io/tools/2016/06/07/Graphing-Tool-Gnuplot.html</guid>
+        <link>http://localhost:4000/tools/2016/06/07/Graphing-Tool-Gnuplot.html</link>
+        <guid isPermaLink="true">http://localhost:4000/tools/2016/06/07/Graphing-Tool-Gnuplot.html</guid>
         
         
         <category>tools</category>
