@@ -6,9 +6,207 @@
 </description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 14 Sep 2017 10:39:40 +0800</pubDate>
-    <lastBuildDate>Thu, 14 Sep 2017 10:39:40 +0800</lastBuildDate>
+    <pubDate>Tue, 17 Oct 2017 16:19:41 +0800</pubDate>
+    <lastBuildDate>Tue, 17 Oct 2017 16:19:41 +0800</lastBuildDate>
     <generator>Jekyll v3.5.2</generator>
+    
+      <item>
+        <title>KVM Paravirt Spinlocks Challenges and Status</title>
+        <description>
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+
+&lt;p&gt;Spinlocks on paravirtualization environment suffer from two known issues: &lt;a href=&quot;http://dl.acm.org/citation.cfm?id=3064180&amp;amp;dl=ACM&amp;amp;coll=DL&amp;amp;CFID=984392879&amp;amp;CFTOKEN=64855677&quot;&gt;Lock Holder Preemption (LHP) and Lock Waiter Preemption (LWP)&lt;/a&gt;.This document tries to find the status of paravirtual (PV) spinlock on Linux kernel 4.12 for KVM, as well as the methodologies used in exploring spinlock performance. It targets to give some inspirations for further study in this field.&lt;/p&gt;
+
+&lt;h3 id=&quot;classic-spinlock-issues&quot;&gt;Classic spinlock issues&lt;/h3&gt;
+
+&lt;p&gt;Traditionally, spinlock is implemented as a test-and-set pattern. But it has two issues: &lt;a href=&quot;https://lwn.net/Articles/590243/&quot;&gt;unfair and cache-line bouncing&lt;/a&gt;. Ticket-spinlock (which has been replaced by qspinlock in 2015) only resolved the unfair issue, but the second issue was resolved by qspinlock. On bare metal machine, the qspinlock demonstrates a huge benefit compared with ticket-spinlock. But what is the status on virtualization environment? Is there anything specific on virtualization environment to be considered?&lt;/p&gt;
+
+&lt;h3 id=&quot;spinlock-challenges-on-virtual-environment&quot;&gt;Spinlock challenges on virtual environment&lt;/h3&gt;
+
+&lt;p&gt;The LHP and LWP are the typical issues on virtualization environment. Different virtualization technology provides different improvements, which was named spinlock enlighten. Meanwhile, CPU also tries to address this issue by Pause Loop Exiting (PLE), but it is inaccurate to detect spinlock’s spin operation. As a result, PLE’s optimization is good for some cases but bad for others.&lt;/p&gt;
+
+&lt;p&gt;How to mitigate the impact of LHP and LWP is still a hot topic recent years. Please read the papers published in 2016 &lt;a href=&quot;https://dl.acm.org/citation.cfm?id=2903271&quot;&gt;Opportunistic Spinlocks&lt;/a&gt; and 2017 &lt;a href=&quot;https://dl.acm.org/citation.cfm?id=3064180&quot;&gt;I-Spinlock&lt;/a&gt;. For popular virtualization products, for example, KVM and XEN, they have provided their PV spinlock respectively. This document will introduce the KVM’s PV spinlock.&lt;/p&gt;
+
+&lt;h2 id=&quot;kvm-pv-spinlock&quot;&gt;KVM PV Spinlock&lt;/h2&gt;
+
+&lt;h3 id=&quot;qspinlock-in-kernel&quot;&gt;qspinlock in kernel&lt;/h3&gt;
+
+&lt;p&gt;qspinlock was introduced into Linux kernel in 2015. It gives good performance compared with ticket spinlock on bare metal machine. You can read this article &lt;a href=&quot;http://blog.csdn.net/chenyu105/article/details/51892686&quot;&gt;Queued spinlock&lt;/a&gt; to understand its working mechanism.&lt;/p&gt;
+
+&lt;p&gt;In order to support PV spinlock, Linux kernel provides a “structure pv_lock_ops” to allow developers to easily integrate implementations for different virtual environment. In addition, Linux optimizes the function callback by back patching. For KVM’s PV spinlock, please read the implementation in file arch/x86/kernel/kvm.c.&lt;/p&gt;
+
+&lt;p&gt;However, in para-virtual VM, qspinlock does not work as good as classic test-and-set. See the commit log:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;n&quot;&gt;commit&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;aa79af64263190eec610422b07f60e99a7d230a&lt;/span&gt;
+&lt;span class=&quot;no&quot;&gt;Author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Peter&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Zijlstra&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Intel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;peterz&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@infradead&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;no&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;   &lt;span class=&quot;no&quot;&gt;Fri&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Apr&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;14&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;56&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;36&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2015&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;0400&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;locking&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;qspinlock: &lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Revert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;and&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;on&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hypervisors&lt;/span&gt;
+
+    &lt;span class=&quot;no&quot;&gt;When&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;we&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;detect&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hypervisor&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;paravirt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;see&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;qspinlock&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;paravirt&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;support&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;patches&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;revert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;simple&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;and&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;avoid&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;horrors&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;preemption&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;If you want to setup VM through KVM, the spinlock is in test-and-set mode default. If you want to enable para-virtual qspinlock, please read this blog: &lt;a href=&quot;https://clovertrail.github.io/jekyll/theme/2017/09/12/KVM-Paravirt-Spinlocks.html&quot;&gt;KVM Paravirt Spinlock&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;performance-evaluation-methodologies&quot;&gt;Performance evaluation methodologies&lt;/h3&gt;
+
+&lt;p&gt;We want to fully understand the KVM PV spinlock’s performance under non-contention and high contention environment. First, we have to select the benchmark. Generally, Linux Kernel Compilation (LKC) is a good benchmark and was referred in many papers. In our experiment, we also use LKC.&lt;/p&gt;
+
+&lt;p&gt;For the test scenario, we plan to compare the test-and-set spinlock and PV qspinlock’s performance. We setup a single VM to evaluate the non-contention performance.&lt;/p&gt;
+
+&lt;p&gt;For high contention test, the ideal environment is setup two VMs. Each of them was assigned all CPU cores. So, if the bare metal machine has 28 cores, the two VM both have 28 CPU cores. Meanwhile, we also setup another kinds of contention test: run LKC on bare metal machine and 1 VM simultaneously.&lt;/p&gt;
+
+&lt;p&gt;Qspinlock demonstrates advantages on overcommitted LKC. Here overcommitted means the parallel thread number is much bigger than the CPU number. So, in our perf test, overcommitted is applied.&lt;/p&gt;
+
+&lt;h3 id=&quot;experiment--analysis&quot;&gt;Experiment &amp;amp; analysis&lt;/h3&gt;
+
+&lt;p&gt;The CPU used in this test is E5-2660 v4 2.00GHZ, 2 CPU, every CPU has 14 cores. Hyperthreading is disabled.
+Linux: Ubuntu 17.04, Linux kernel is 4.12.&lt;/p&gt;
+
+&lt;h4 id=&quot;high-contention-test&quot;&gt;High contention test&lt;/h4&gt;
+
+&lt;p&gt;3 scenarios were tested. All of them use “make -j36” since CPU cores are 28 in bare metal machine. For each scenario, the LKC was run 10 times. We take the average and stddev.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Bare metal machine’s qspinlock performance. 100% CPU cores were used. We can see average time is 338.1s with very small standard deviation.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table class=&quot;mbtablestyle&quot;&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Baseline of spinlock performance&lt;/td&gt;
+      &lt;td&gt;Average(s)&lt;/td&gt;
+      &lt;td&gt;Stddev&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Baremetal (vmlinuz-4.12.0)&lt;/td&gt;
+      &lt;td&gt;338.1&lt;/td&gt;
+      &lt;td&gt;0.5676&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Contention scenario: bare metal vs. KVM PV spinlock enlighten. Bare metal has 28 CPU, and KVM also has 28 CPU. We see bare metal is much better than KVM: bare metal has higher performance as well as small standard deviation.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table class=&quot;mbtablestyle&quot;&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Contention: Baremetal vs. KVM enlighten spinlock&lt;/td&gt;
+      &lt;td&gt;Average(s)&lt;/td&gt;
+      &lt;td&gt;Stddev&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Bare metal (28 CPU)&lt;/td&gt;
+      &lt;td&gt;447.2&lt;/td&gt;
+      &lt;td&gt;13.88&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;KVM spinlock enlighten spinlock(28 CPU)&lt;/td&gt;
+      &lt;td&gt;955.1&lt;/td&gt;
+      &lt;td&gt;195.99&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Contention scenario: bare metal vs. KVM test-and-set spinlock. Bare metal has 28 CPU, and KVM also has 28 CPU. We see bare metal is still better than KVM. But if we compare it with KVM PV spinlock, the test-and-set is much better. This explains why KVM PV spinlock is disabled by default.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table class=&quot;mbtablestyle&quot;&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Contention: Baremetal vs. KVM test-and-set&lt;/td&gt;
+      &lt;td&gt;Average(s)&lt;/td&gt;
+      &lt;td&gt;Stddev&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Bare metal (28 CPU)&lt;/td&gt;
+      &lt;td&gt;593.5&lt;/td&gt;
+      &lt;td&gt;21.03&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;KVM spinlock test-and-set (28 CPU)&lt;/td&gt;
+      &lt;td&gt;654.8&lt;/td&gt;
+      &lt;td&gt;64.99&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Contention scenario: KVM test-and-set spinlock vs. KVM spinlock enlighten.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table class=&quot;mbtablestyle&quot;&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Contention: KVM test-and-set vs. KVM enlighten&lt;/td&gt;
+      &lt;td&gt;Average(s)&lt;/td&gt;
+      &lt;td&gt;Stddev&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;KVM spinlock test-and-set&lt;/td&gt;
+      &lt;td&gt;498.9&lt;/td&gt;
+      &lt;td&gt;17.31&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;KVM spinlock enlighten&lt;/td&gt;
+      &lt;td&gt;801.6&lt;/td&gt;
+      &lt;td&gt;357.27&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h4 id=&quot;non-contention-test&quot;&gt;Non-contention test&lt;/h4&gt;
+
+&lt;p&gt;1 VM was setup, and there is qemu parameter used to enable or disable PV spinlock. The VM was assigned all CPU cores (28). We run 10 times of “time make -j80” for overcommitted mode. We saw that there is almost no difference.&lt;/p&gt;
+
+&lt;table class=&quot;mbtablestyle&quot;&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Parallel Thread No&lt;/td&gt;
+      &lt;td&gt;80&lt;/td&gt;
+      &lt;td&gt;80&lt;/td&gt;
+      &lt;td&gt;80&lt;/td&gt;
+      &lt;td&gt;80&lt;/td&gt;
+      &lt;td&gt;80&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;enlighten&lt;/td&gt;
+      &lt;td&gt;6m21.984s&lt;/td&gt;
+      &lt;td&gt;6m16.045s&lt;/td&gt;
+      &lt;td&gt;6m16.645s&lt;/td&gt;
+      &lt;td&gt;6m17.136s&lt;/td&gt;
+      &lt;td&gt;6m17.165s&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;test-and-set&lt;/td&gt;
+      &lt;td&gt;6m20.179s&lt;/td&gt;
+      &lt;td&gt;6m13.918s&lt;/td&gt;
+      &lt;td&gt;6m14.288s&lt;/td&gt;
+      &lt;td&gt;6m14.399s&lt;/td&gt;
+      &lt;td&gt;6m14.539s&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;summary&quot;&gt;Summary&lt;/h3&gt;
+
+&lt;p&gt;KVM’s PV spinlock still needs to be improved, but currently there is no efficient mechanism for the VM to communicate with Hypervisor to avoid LHP and LWP.&lt;/p&gt;
+
+</description>
+        <pubDate>Tue, 17 Oct 2017 13:05:14 +0800</pubDate>
+        <link>http://localhost:4000/jekyll/theme/2017/10/17/KVM-Paravirt-Spinlocks-Perf.html</link>
+        <guid isPermaLink="true">http://localhost:4000/jekyll/theme/2017/10/17/KVM-Paravirt-Spinlocks-Perf.html</guid>
+        
+        
+        <category>jekyll</category>
+        
+        <category>theme</category>
+        
+      </item>
     
       <item>
         <title>KVM Paravirt Spinlocks</title>
