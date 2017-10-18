@@ -56,10 +56,15 @@ Qspinlock demonstrates advantages on overcommitted LKC. Here overcommitted means
 
 ### Experiment & analysis
 
-The CPU used in this test is E5-2660 v4 2.00GHZ, 2 CPU, every CPU has 14 cores. Hyperthreading is disabled.
-Linux: Ubuntu 17.04, Linux kernel is 4.12.
+qspinlock contributer has done some experiments on KVM guests, you can read those data from here [Enable PV qspinlock for KVM patch1][Enable_PVqspinlock_forKVM] and [Enable PV qspinlock for KVM patch2][Enable_PVqspinlock_forKVM2]. But the contributer's intention is qspinlock is better than ticklock. He does not compare TAS and PV qspinlock.
 
-#### High contention test
+The CPU used in this test is E5-2660 v4 2.00GHZ, 2 CPU, every CPU has 14 cores. Hyperthreading is disabled.
+
+Linux: Ubuntu 17.04, Linux kernel is 4.12. The tests run included LKC benchmark on ext4 RAM disks.
+
+The test scenarios include contention test and non-contention test. For contention tests, the KVM guests and KVM host share the same 28 physical CPUs, or 2 KVM guests are active and share 28 physical CPUs. The target is to run 200% overcommit. For non-contention tests, only 1 KVM guest is active.
+
+#### Contention test
 
 3 scenarios were tested. All of them use "make -j36" since CPU cores are 28 in bare metal machine. For each scenario, the LKC was run 10 times. We take the average and stddev.
 
@@ -92,7 +97,7 @@ Linux: Ubuntu 17.04, Linux kernel is 4.12.
 
 #### Non-contention test
 
-1 VM was setup, and there is qemu parameter used to enable or disable PV spinlock. The VM was assigned all CPU cores (28). We run 10 times of "time make -j80" for overcommitted mode. We saw that there is almost no difference.
+Only 1 VM was setup, and there is qemu parameter used to enable or disable PV spinlock. The VM was assigned all CPU cores (28). We run 10 times of "time make -j80" for overcommitted mode. We saw that there is almost no difference.
 
 | Parallel Thread No| 80      |  80     |   80    |    80   |     80  |
 | enlighten         |6m21.984s|6m16.045s|6m16.645s|6m17.136s|6m17.165s|
@@ -100,8 +105,9 @@ Linux: Ubuntu 17.04, Linux kernel is 4.12.
 {:.mbtablestyle}
 
 ### Summary
+From performance perspective, the problem with TAS unfair lock is cache line contention or cache line bouncing. The more tasks are pounding on the lock, the worse its performance becomes especially on a relative big NUMA system, for example, 4 NUMA nodes. PV qspinlock solves the cache line bouncing issue. For small number of contention tasks, TAS may performance better. If the contending task number exceeds a threshold (not yet found because test CPU does not have enough cores), pvqspinlock will perform better, however, vCPU overcommitment will greatly increase vCPU preemptions. Since PV qspinlock introduces overhead to resolve preemption issue, TAS may beat PV qspinlock if the overhead becomes bottleneck.
 
-KVM's PV spinlock still needs to be improved, but currently there is no efficient mechanism for the VM to communicate with Hypervisor to avoid LHP and LWP.
+KVM's PV spinlock still needs to be improved, but currently there is no efficient mechanism for the VM to communicate with Hypervisor to avoid LHP and LWP (to resolve preemption).
 
 [LHP_LWP]: http://dl.acm.org/citation.cfm?id=3064180&dl=ACM&coll=DL&CFID=984392879&CFTOKEN=64855677
 [UNFAIR_CACHE_BOUNCING]: https://lwn.net/Articles/590243/
@@ -110,3 +116,5 @@ KVM's PV spinlock still needs to be improved, but currently there is no efficien
 [SPINLOCK_PAPER1]: https://dl.acm.org/citation.cfm?id=3064180
 [OPPORTUNISTIC_SPINLOCK]: https://dl.acm.org/citation.cfm?id=2903271
 [QUEUED_SPINLOCK]: http://blog.csdn.net/chenyu105/article/details/51892686
+[Enable_PVqspinlock_forKVM]: https://patchwork.kernel.org/patch/4271961/
+[Enable_PVqspinlock_forKVM2]: https://lists.linuxfoundation.org/pipermail/virtualization/2014-October/027816.html
